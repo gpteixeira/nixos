@@ -19,30 +19,58 @@
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usb_storage" "sd_mod" "sr_mode" "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
   boot.extraModulePackages = [ pkgs.linuxPackages_latest.nvidiaPackages.stable ];
-  boot.supportedFilesystems = [ "ext4" "ntfs" "vfat" "exfat" "btrfs" "xfs" "zfs" ];
+  boot.supportedFilesystems = [ "ext4" "ntfs" "vfat" "exfat" "btrfs" "xfs"];
   boot.kernel.sysctl."vm.swappiness" = "10";
 
   hardware.cpu.amd.updateMicrocode = true;
-  hardware.nvidia.package = pkgs.linuxPackages_latest.nvidiaPackages.stable;
-  hardware.bluetooth = true;
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
   hardware.opengl.driSupport32Bit = true;
 
   services.printing.enable = true;
 
+  #pipewire
+  security.rtkit.enable = true;
   services.pipewire = {
-    enable = true;
-    extraPackages = with pkgs; [
-      pipewire
-      pipewire-pulseaudio
-      pipewire-alsa
-      pipewire-jack
-      pipewire-ffmpeg
-      pipewire-gstreamer
-      pipewire-v4l2
-      pipewire-docs
-    ];
+    enable = true; # if not already enabled
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    jack.enable = true;
   };
-  sound.enable = true;
+  
+  services.pipewire.extraConfig.pipewire."92-low-latency" = {
+    "context.properties" = {
+      "default.clock.rate" = 48000;
+      "default.clock.quantum" = 32;
+      "default.clock.min-quantum" = 32;
+      "default.clock.max-quantum" = 32;
+    };
+  };
+  
+  #PulseAudio backend
+  #Applications using the Pulse backend have a separate configuration. The default minimum value is 1024, so it needs to be tweaked if low-latency audio is desired.
+  services.pipewire.extraConfig.pipewire-pulse."92-low-latency" = {
+    "context.properties" = [
+      {
+        name = "libpipewire-module-protocol-pulse";
+        args = { };
+      }
+    ];
+    "pulse.properties" = {
+      "pulse.min.req" = "32/48000";
+      "pulse.default.req" = "32/48000";
+      "pulse.max.req" = "32/48000";
+      "pulse.min.quantum" = "32/48000";
+      "pulse.max.quantum" = "32/48000";
+    };
+    "stream.properties" = {
+      "node.latency" = "32/48000";
+      "resample.quality" = 1;
+    };
+  };
+
 
   #Nvidia Configuration
   # Enable OpenGL
@@ -93,22 +121,13 @@
   services.fail2ban.enable = true;
   #VMWARE
   virtualisation.vmware.host.enable = true;
-  virtualisation.vmware = {
-    enable = true;
-    version = "16.1.2";
-  };
   virtualisation.vmware.guest.enable = true;
-  virtualisation.vmware.guest = {
-    enable = true;
-    version = "16.1.2";
-  };
 
+  #Virtual Box
   virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox = {
-    enable = true;
-    version = "6.1.30";
-  };
+  virtualisation.virtualbox.host.enableExtensionPack = true;
 
+  #docker
   virtualisation.docker.enable = true;
 
   networking.firewall.enable = true;
@@ -121,9 +140,6 @@
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
-  networking.networkmanager.enable = true;
 
   # Set your time zone.
   time.timeZone = "America/Bahia";
@@ -171,8 +187,6 @@
     #packages = with pkgs; [ ];
   };
 
-  programs.zsh.enable = true; #enable zsh for system
-
   programs = {
     ssh.startAgent = true;
     zsh = {
@@ -187,7 +201,7 @@
 
   fonts.packages = with pkgs; [
     # Nerd Fonts use nerd-fonts-complete for all fonts
-    fira-code fira-code-symbols fira-code-nerd-font 
+    fira-code fira-code-symbols dejavu_fonts noto-fonts noto-fonts-emoji noto-fonts-cjk-sans nerdfonts
   ];
 
   # Allow unfree packages
@@ -197,7 +211,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  wget curl neovim git asciiquarium-transparent file htop tree unzip zip vim nano tmux openssh rsync man man-pages less bash-completion htop mlocate virtualbox microsoft-edge vlc obs-studio cmake audacity dconf xboxdrv krita neofetch nmap gcc gamemode gnome.gnome-disk-utility iptables ipset linuxPackages_zen.cpupower lm_sensors lutris heroic-unwrapped mangohud microcodeAmd protonup-qt python3 vmware-workstation steam vscode-with-extensions tar rar docker docker-compose thunderbird 
+  wget curl neovim git asciiquarium-transparent file htop tree unzip zip vim nano tmux openssh rsync man man-pages less bash-completion htop mlocate virtualbox microsoft-edge vlc obs-studio cmake audacity dconf xboxdrv krita neofetch nmap gcc gamemode gnome.gnome-disk-utility iptables ipset linuxPackages_zen.cpupower lm_sensors lutris heroic-unwrapped mangohud microcodeAmd protonup-qt python3 vmware-workstation steam vscode-with-extensions gnutar rar docker docker-compose thunderbird 
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
