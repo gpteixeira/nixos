@@ -27,6 +27,8 @@
   hardware.bluetooth = true;
   hardware.opengl.driSupport32Bit = true;
 
+  services.printing.enable = true;
+
   services.pipewire = {
     enable = true;
     extraPackages = with pkgs; [
@@ -40,6 +42,7 @@
       pipewire-docs
     ];
   };
+  sound.enable = true;
 
   #Nvidia Configuration
   # Enable OpenGL
@@ -78,7 +81,7 @@
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-
+  
   # Load nvidia driver for Xorg and Wayland
   services.xserver= {
     enable = true;
@@ -105,6 +108,8 @@
     enable = true;
     version = "6.1.30";
   };
+
+  virtualisation.docker.enable = true;
 
   networking.firewall.enable = true;
 
@@ -160,7 +165,7 @@
     isNormalUser = true;
     description = "Gabriel Teixeira";
     #extraGroups = [ "networkmanager" "wheel" ];
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "docker" ];
 
     shell = pkgs.zsh;
     #packages = with pkgs; [ ];
@@ -168,9 +173,21 @@
 
   programs.zsh.enable = true; #enable zsh for system
 
+  programs = {
+    ssh.startAgent = true;
+    zsh = {
+      enable = true;
+      ohMyZsh = {
+        enable = true;
+        plugins = [ "git" ];
+        theme = "mikeh";
+      };
+    };
+  };
+
   fonts.packages = with pkgs; [
     # Nerd Fonts use nerd-fonts-complete for all fonts
-    fira-code fira-code-symbols fira-code-nerd-font
+    fira-code fira-code-symbols fira-code-nerd-font 
   ];
 
   # Allow unfree packages
@@ -180,7 +197,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  wget curl neovim git asciiquarium-transparent file htop tree unzip zip vim nano tmux openssh rsync man man-pages less bash-completion htop mlocate virtualbox microsoft-edge vlc obs-studio cmake audacity dconf xboxdrv krita neofetch nmap gcc gamemode gnome.gnome-disk-utility iptables ipset linuxPackages_zen.cpupower lm_sensors lutris heroic-unwrapped mangohud microcodeAmd protonup-qt python3 vmware-workstation steam vscode-with-extensions tar rar
+  wget curl neovim git asciiquarium-transparent file htop tree unzip zip vim nano tmux openssh rsync man man-pages less bash-completion htop mlocate virtualbox microsoft-edge vlc obs-studio cmake audacity dconf xboxdrv krita neofetch nmap gcc gamemode gnome.gnome-disk-utility iptables ipset linuxPackages_zen.cpupower lm_sensors lutris heroic-unwrapped mangohud microcodeAmd protonup-qt python3 vmware-workstation steam vscode-with-extensions tar rar docker docker-compose thunderbird 
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
