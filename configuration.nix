@@ -168,6 +168,11 @@
 
   programs.zsh.enable = true; #enable zsh for system
 
+  fonts.packages = with pkgs; [
+    # Nerd Fonts use nerd-fonts-complete for all fonts
+    fira-code fira-code-symbols fira-code-nerd-font
+  ];
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -190,7 +195,7 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-  services.openssh.ports = [ 22 ];
+  services.openssh.ports = [ 4322 ];
   services.openssh.passwordAuthentication = true;
   services.openssh.permitRootLogin = "no";
   
