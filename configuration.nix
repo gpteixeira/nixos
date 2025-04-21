@@ -50,6 +50,8 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
+  hardware.bluetooth.enable = true;
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -120,11 +122,20 @@
     # no need to redefine it in your config for now)
     #media-session.enable = true;
   };
+  # Configuraçao docker
   virtualisation.docker.enable = true;
   virtualisation.docker.rootless = {
   	enable = true;
   	setSocketVariable = true;
   };
+  
+  # Configuração virtualbox
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "gabriel" ];
+  virtualisation.virtualbox.host.enableExtensionPack = true;
+  virtualisation.virtualbox.guest.enable = true;
+  virtualisation.virtualbox.guest.dragAndDrop = true;
+
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -175,6 +186,18 @@
    obs-studio
    mangohud
    bottles
+   stremio
+   lutris
+   gamescope
+   android-studio
+   clang
+   cmake
+   flutter
+   ninja
+   pkg-config
+   flameshot
+   davinci-resolve
+   ffmpeg-full
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -196,7 +219,10 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-
+  networking.nameservers = [
+    "8.8.8.8" # Google DNS (primary)
+    "1.1.1.1" # Cloudflare DNS (secondary)
+  ];
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
